@@ -1,0 +1,43 @@
+# IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Java / Gradle
+backend/build/
+backend/.gradle/
+backend/bin/
+backend/out/
+*.class
+*.jar
+*.war
+
+# Node / Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.pnpm-store/
+
+# Environment
+.env
+.env.local
+.env.*.local
+*.env
+
+# Logs
+*.log
+logs/
+
+# Docker
+docker-compose.override.yml
+
+# Terraform (test files)
+*.tfstate
+*.tfstate.backup
+.terraform/

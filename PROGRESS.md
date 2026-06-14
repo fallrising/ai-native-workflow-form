@@ -71,18 +71,28 @@
 
 ---
 
-## 下一步：Phase 2 - WYSIWYG Designer
+## Phase 2 - WYSIWYG Designer
 
-### 優先順序
-1. **P2.2 Schema Tree Panel**：樹形展示 TF 欄位，搜索/過濾/已配置標記
-2. **P2.3 Field Config Panel**：基本/目標/值來源/組件/數據源/校驗/依賴/排序
-3. **P2.4 Preview Panel**：即時渲染 User/OPs Form 預覽
-4. **P2.5 Config Generation**：生成 Form Config JSON + TF Template + API Spec
+### 架構決策（已定）
+- **佈局**：三欄 Tree | Config | Preview
+- **Drag & drop**：@dnd-kit（M2 引入）
+- **動態表單渲染**：手寫 + react-hook-form + zod
 
-### 需要決策的事
-- 設計器佈局：三欄（Tree | Config | Preview）還是 Tab？
-- Drag & drop：dnd-kit 還是 react-dnd？
-- 動態表單渲染：自己手寫 還是 react-jsonschema-form？
+### Milestone 1 ✅（本次）
+- [x] shadcn 基礎組件（Button/Input/Label/Textarea/Select/Switch/Checkbox/RadioGroup/Tabs/Form/Card/Badge）
+- [x] 前端類型補齊（FormTarget×4、ValueSource×5、ComponentType×11、TfFieldNode、SchemaTreeResponse、FieldConfig*）
+- [x] Designer hooks：useTemplate / useSchemaTree / useFieldConfigs / useUpsertFieldConfig / useResetFieldConfigs
+- [x] fieldConfigSchema：zod schema、defaultDraftForTfField、warnMappingMismatch
+- [x] SchemaTreePanel：遞迴樹、已配置標記、required/computed 標記、Unmapped Configs 區段
+- [x] FieldConfigPanel：Tabs（Basic/Mapping/Component/Values）、JSON textarea、軟提示 mapping mismatch、Submit/Discard
+- [x] DesignerPage：三欄佈局，seed 模板無 `tf_provider_version` 時 fallback 到 schemas list
+
+### Milestone 2（下一步）
+1. **P2.2 進階**：搜索/過濾、@dnd-kit 拖拽分桶 + 排序
+2. **P2.3 進階**：dataSource/validation/dependsOn 的結構化編輯器（discriminated union zod）
+3. **P2.4 Preview Panel**：即時渲染 User/OPs Form
+4. **P2.5 Config Generation**：Form Config JSON + TF Template + API Spec
+5. 嵌套 block 子欄位配置（nestingMode=LIST/SET/MAP）
 
 ---
 

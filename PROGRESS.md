@@ -1,83 +1,88 @@
 # CloudForm - 開發進度記錄
 
-> 最後更新：2026-06-13
+> 最後更新：2026-06-14
 
-## 當前狀態：Phase 1 - 項目初始化（部分完成）
+## 當前狀態：Phase 1 完成 ✅
 
-### ✅ 已完成
+### Phase 1: Foundation
 
-#### 項目骨架 (P1.1)
-- [x] Spring Boot 3.x + Java 17 項目（Gradle）初始化
-- [x] React + Vite + TypeScript 前端項目初始化
-- [x] shadcn/ui 初始化（`components.json` 已配置）
+#### ✅ 項目骨架 (P1.1)
+- [x] Spring Boot 3.x + Java 17 項目（Gradle）
+- [x] Gradle wrapper（8.14.3，含 foojay toolchain resolver 自動下載 JDK 17）
+- [x] React + Vite + TypeScript 前端項目
+- [x] shadcn/ui 初始化（`components.json` + `lib/utils.ts`）
+- [x] Tailwind v4 配置（`@theme inline` + light/dark tokens）
 - [x] Docker Compose (PostgreSQL + Redis)
-- [x] `.gitignore` 配置
-- [x] `AGENTS.md` 項目指令文件
+- [x] `.gitignore` / `AGENTS.md` / `PROGRESS.md`
 
-#### 數據庫 & Entity (P1.2)
-- [x] DDL scripts（Flyway migration `V1__create_tables.sql`）
-- [x] 基本 seed data（`V2__seed_data.sql`）
-- [x] JPA Entities：
-  - `ResourceTemplate` - 資源模板
-  - `FieldConfig` - 欄位配置
-  - `ProvisioningRequest` - 資源配置請求
-  - `WorkflowInstance` - 工作流實例
-  - `WorkflowStep` - 工作流步驟
-  - `CloudAccount` - 雲帳號
-- [x] JPA Repositories（全部 6 個 Entity 對應的 Repository）
-- [x] Domain Enums：
-  - `CloudProvider` - 雲服務商
-  - `ResourceType` - 資源類型
-  - `TemplateStatus` - 模板狀態
-  - `RequestStatus` - 請求狀態
-  - `FormTarget` - 表單目標（User/OPs/Hidden/Result）
-  - `ValueSource` - 值來源
-  - `ComponentType` - 組件類型
+#### ✅ 數據庫 & Entity (P1.2)
+- [x] Flyway 三個 migration：V1 建表、V2 阿里雲 RDS seed、V3 加 `tf_provider_version`
+- [x] 6 個 JPA Entity（含 `tf_provider_version` 欄位）
+- [x] 6 個 Repository（含 `findWithFilters` 動態過濾）
+- [x] 7 個 Enum
+- [x] `JpaConfig` 啟用 `@EnableJpaAuditing`（前次缺失）
 
-#### 文檔
-- [x] `docs/01-architecture-overview.md` - 架構總覽
-- [x] `docs/02-form-config-schema.md` - 表單配置 Schema 規格
-- [x] `docs/03-data-model.md` - 數據模型設計
-- [x] `docs/04-api-design.md` - API 設計
-- [x] `docs/05-frontend-design.md` - 前端設計
-- [x] `docs/06-roadmap.md` - 開發路線圖
+#### ✅ TF Schema 解析 & 管理 (P1.3)
+- [x] Schema artifact store 設計（方案 A：預生成 + manual fallback）
+- [x] `tf-schema-generator/` 含 alicloud + aws 的 `main.tf` + `generate.sh` + README
+- [x] `backend/src/main/resources/tf-schemas/` 手寫範例：
+  - `alicloud-1.230.0.json`（含 `alicloud_db_instance` + nested `parameters` block + `pg_hba_conf`）
+  - `aws-5.70.0.json`（含 `aws_db_instance` + `restore_to_point_in_time` + `timeouts`）
+- [x] Parser（`com.cloudform.terraform`）：
+  - Models：`TfRoot` / `TfProviderSchema` / `TfResourceSchema` / `TfBlock` / `TfAttribute` / `TfNestedBlock`
+  - `TfSchemaParser`（Jackson，自帶 ObjectMapper 不污染 Spring 主 mapper）
+  - `FieldTreeBuilder`（嵌套 block 展平成 dot-notation path）
+  - `TfFieldNode`（展平輸出節點）
+- [x] Repository 抽象：`ClasspathTfSchemaRepository`（dev/test 預設）、`FileSystemTfSchemaRepository`（prod）
+- [x] 配置：`cloudform.tf-schema.source = classpath | filesystem`
+- [x] 單元測試：`TfSchemaParserTest`、`FieldTreeBuilderTest`、`ClasspathTfSchemaRepositoryTest`
 
-### 🔲 尚未完成（Phase 1 剩餘）
+#### ✅ 基礎 API (P1.4)
+- [x] 共用 DTO：`ApiResponse<T>` / `PageResponse<T>` / `ApiError`
+- [x] Template API：CRUD + publish/archive，`/api/v1/templates`
+- [x] TF Schema API：list / list resources / get tree，`/api/v1/tf-schemas`
+- [x] Field Config API：list / upsert / batch / reset，`/api/v1/templates/{id}/fields`
+- [x] 橫切：`GlobalExceptionHandler`（統一錯誤 envelope）、`OpenApiConfig`、`WebConfig` CORS
+- [x] `ResourceTemplateServiceTest`
 
-#### TF Schema 解析引擎 (P1.3)
-- [ ] 解析 `terraform providers schema -json` 的 JSON 輸出
-- [ ] 建立欄位樹數據結構（支持嵌套 block）
-- [ ] 提取欄位元數據（type, required, computed, default, description）
-- [ ] 支持 `alicloud` 和 `aws` provider
+#### ✅ 文檔
+- [x] `docs/01~06`（架構/Schema/數據模型/API/前端/路線圖）
+- [x] `docs/02` 修正：`PLATFORM_DEFAULT` → `FIXED`（與 enum 對齊）
+- [x] `docs/06` 修正：Gantt 日期改成相對天數，避免再次過期
 
-#### 基礎 API (P1.4)
-- [ ] Template CRUD endpoints
-- [ ] Schema import endpoint
-- [ ] DTOs（Request/Response）
-- [ ] Service 層業務邏輯
-- [ ] Controller 層 REST API
-- [ ] OpenAPI/Swagger 配置
+### Phase 1 既有問題修正
+- [x] `JpaConfig` 缺失 → 已加，時間戳會自動填
+- [x] `App.tsx` 缺失 → 已建，router shell 接 AppLayout
+- [x] `lib/utils.ts` 缺失 → 已建 shadcn `cn()` helper
+- [x] `index.css` 缺 `@theme` → 已重寫成 Tailwind v4 標準寫法
+- [x] Gradle wrapper 缺失 → 已加（8.14.3 + foojay resolver）
+- [x] `ValueSource` 文檔/code 不一致 → 文檔對齊 enum
+- [x] `ComponentType` enum → 已驗證 11 個值齊全
+- [x] `docs/06` 過期日期 → 改成相對天數
 
-#### 前端
-- [ ] 前端基礎頁面佈局（目前只有空的 `main.tsx` 和 `index.css`）
-- [ ] 路由配置
-- [ ] API client 設定
+### 前端基礎 (P2.1 - 提前)
+- [x] App.tsx + Router（`/templates`, `/templates/new`, `/templates/:id/design`）
+- [x] AppLayout + Sidebar + Header
+- [x] API client（axios + 自動拆封 envelope + 錯誤 toast）
+- [x] TanStack Query key factory
+- [x] Types：`ApiResponse` / `PageResponse` / `TemplateSummary` / `SchemaSourceItem`
+- [x] TemplatesListPage（呼叫 `GET /templates`，含 skeleton/empty/error 狀態）
+- [x] CreateTemplatePage / DesignerPage placeholder
 
 ---
 
-## 下次繼續的建議
+## 下一步：Phase 2 - WYSIWYG Designer
 
 ### 優先順序
-1. **完成 P1.3 - TF Schema 解析引擎**：這是整個系統的基礎
-2. **完成 P1.4 - 基礎 API**：Template CRUD + Schema import
-3. **進入 Phase 2 - 前端基礎 & 設計器**
+1. **P2.2 Schema Tree Panel**：樹形展示 TF 欄位，搜索/過濾/已配置標記
+2. **P2.3 Field Config Panel**：基本/目標/值來源/組件/數據源/校驗/依賴/排序
+3. **P2.4 Preview Panel**：即時渲染 User/OPs Form 預覽
+4. **P2.5 Config Generation**：生成 Form Config JSON + TF Template + API Spec
 
-### 具體下一步
-1. 建立 `terraform/` 模組，實作 TF Schema JSON 解析
-2. 建立 DTOs（`CreateTemplateRequest`, `TemplateResponse` 等）
-3. 建立 `service/ResourceTemplateService`
-4. 建立 `controller/ResourceTemplateController`
-5. 配置 Swagger/OpenAPI
+### 需要決策的事
+- 設計器佈局：三欄（Tree | Config | Preview）還是 Tab？
+- Drag & drop：dnd-kit 還是 react-dnd？
+- 動態表單渲染：自己手寫 還是 react-jsonschema-form？
 
 ---
 
@@ -85,30 +90,44 @@
 
 ```
 cloudform/
-├── AGENTS.md                              # 項目 Agent 指令
-├── PROGRESS.md                            # 本進度文件
-├── README.md                              # 項目說明
-├── docker-compose.yml                     # PostgreSQL + Redis
-├── .gitignore
+├── AGENTS.md / PROGRESS.md / README.md
+├── docker-compose.yml
 ├── backend/
-│   ├── build.gradle.kts
-│   ├── settings.gradle.kts
-│   └── src/main/
-│       ├── java/com/cloudform/
-│       │   ├── CloudFormApplication.java  # Spring Boot 入口
-│       │   ├── domain/
-│       │   │   ├── entity/               # 6 個 JPA Entity
-│       │   │   └── enums/                # 7 個 Enum
-│       │   └── repository/               # 6 個 JPA Repository
-│       └── resources/
-│           ├── application.yml
-│           └── db/migration/             # Flyway DDL + Seed
-├── frontend/
-│   ├── package.json
-│   ├── vite.config.ts
-│   ├── components.json                   # shadcn/ui 配置
+│   ├── build.gradle.kts / settings.gradle.kts
+│   ├── gradlew / gradlew.bat / gradle/wrapper/*
+│   ├── tf-schema-generator/         # 產 TF schema JSON 的腳手架
+│   │   ├── alicloud/main.tf
+│   │   ├── aws/main.tf
+│   │   ├── generate.sh
+│   │   └── README.md
 │   └── src/
-│       ├── main.tsx
-│       └── index.css
-└── docs/                                 # 6 份設計文檔
+│       ├── main/
+│       │   ├── java/com/cloudform/
+│       │   │   ├── CloudFormApplication.java
+│       │   │   ├── config/{JpaConfig,OpenApiConfig,WebConfig}.java
+│       │   │   ├── controller/{ResourceTemplate,TfSchema,FieldConfig}Controller.java
+│       │   │   ├── domain/{entity,enums}/...
+│       │   │   ├── dto/{ApiResponse,PageResponse,ApiError,template/*,schema/*,field/*}.java
+│       │   │   ├── repository/...
+│       │   │   ├── service/{ResourceTemplate,TfSchema,FieldConfig}Service.java
+│       │   │   ├── terraform/{TfRoot,TfProviderSchema,TfResourceSchema,TfBlock,...
+│       │   │   │             TfSchemaParser,FieldTreeBuilder,TfSchemaRepository,
+│       │   │   │             Classpath/FileSystem...Repository}.java
+│       │   │   └── web/{GlobalExceptionHandler,ResourceNotFoundException,InvalidStateException}.java
+│       │   └── resources/
+│       │       ├── application.yml          (含 cloudform.tf-schema.source)
+│       │       ├── db/migration/V1__V2__V3__*.sql
+│       │       └── tf-schemas/{alicloud,aws}-*.json
+│       └── test/java/com/cloudform/
+│           ├── terraform/{TfSchemaParser,FieldTreeBuilder,ClasspathTfSchemaRepository}Test.java
+│           └── service/ResourceTemplateServiceTest.java
+└── frontend/
+    ├── package.json / vite.config.ts / tsconfig*.json
+    ├── components.json
+    └── src/
+        ├── main.tsx / App.tsx / index.css / vite-env.d.ts
+        ├── components/layout/{AppLayout,Sidebar,Header}.tsx
+        ├── features/templates/{TemplatesListPage,CreateTemplatePage,DesignerPage}.tsx
+        ├── lib/{api,queryKeys,utils}.ts
+        └── types/api.ts
 ```

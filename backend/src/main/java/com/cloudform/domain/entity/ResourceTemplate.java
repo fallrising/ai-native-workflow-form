@@ -33,6 +33,9 @@ public class ResourceTemplate {
     @Column(name = "tf_resource_name", nullable = false, length = 100)
     private String tfResourceName;
 
+    @Column(name = "tf_provider_version", length = 50)
+    private String tfProviderVersion;
+
     @Column(name = "display_name", nullable = false, length = 200)
     private String displayName;
 
@@ -92,6 +95,9 @@ public class ResourceTemplate {
 
     public String getTfResourceName() { return tfResourceName; }
     public void setTfResourceName(String tfResourceName) { this.tfResourceName = tfResourceName; }
+
+    public String getTfProviderVersion() { return tfProviderVersion; }
+    public void setTfProviderVersion(String tfProviderVersion) { this.tfProviderVersion = tfProviderVersion; }
 
     public String getDisplayName() { return displayName; }
     public void setDisplayName(String displayName) { this.displayName = displayName; }

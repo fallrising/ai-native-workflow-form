@@ -229,19 +229,19 @@ forms:
   fixedFields:
     - key: "instance_charge_type"
       tfPath: "instance_charge_type"
-      valueSource: "PLATFORM_DEFAULT"
+      valueSource: "FIXED"
       fixedValue: "Postpaid"
       description: "付費方式 - 平台統一使用後付費"
 
     - key: "security_ips"
       tfPath: "security_ips"
-      valueSource: "PLATFORM_DEFAULT"
+      valueSource: "FIXED"
       fixedValue: ["10.0.0.0/8", "172.16.0.0/12"]
       description: "安全組 IP 白名單 - 平台統一配置"
 
     - key: "monitoring_enabled"
       tfPath: "monitoring_period"
-      valueSource: "PLATFORM_DEFAULT"
+      valueSource: "FIXED"
       fixedValue: 60
       description: "監控週期(秒) - 平台統一配置"
 

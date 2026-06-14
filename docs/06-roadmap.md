@@ -4,12 +4,12 @@
 
 ```mermaid
 gantt
-    title CloudForm 開發路線圖
-    dateFormat  YYYY-MM-DD
-    axisFormat  %m/%d
+    title CloudForm 開發路線圖（相對天數，D = 啟動日）
+    dateFormat  X
+    axisFormat  D+%s
 
     section Phase 1 - 基礎
-    專案初始化 & 腳手架           :p1a, 2025-01-20, 3d
+    專案初始化 & 腳手架           :p1a, 0, 3d
     資料庫 Schema & Entity       :p1b, after p1a, 3d
     TF Schema 解析引擎           :p1c, after p1b, 5d
     基本 REST API (Template CRUD):p1d, after p1b, 3d

@@ -58,8 +58,16 @@ public enum ResourceType {
 }
 ```
 
+### Cross-Provider 產品族（規劃中）
+
+端用戶面對的入口是「資源類型」而非「(雲商, 資源類型)」對。同一 `ResourceType` 下的多個 `ResourceTemplate`（每個 provider 一個）組成一個 **product family**，共用對外的 family slug / 顯示名 / 圖標。最小化方案是不引新表，加 `ResourceTemplate.familyKey: String`（同 family 內所有變體共用一個 key）+ `familyDisplayName`；列表頁按 familyKey 聚合。後續若要管理「跨 provider 共用欄位語義」可再引 `ResourceProductFamily` 表 + `SharedFieldDefinition`。**現階段不動 schema**，待 designer / list 頁的 UX 拍板後再 migrate。
+
+### Custom Fields（非 TF Schema 欄位）
+
+`FieldConfig.tfPath = null` 的欄位是**自定義欄位**：不是直接寫進該 TF 資源 block，而是傳給下游 Terraform Orchestrator 服務，用於配套基礎設施（如 VPC / Subnet 建立邏輯、安全組規則、初始化腳本參數）。今天 designer 用「Unmapped Configs」section 顯示這些，未來會升為「Custom Fields」並支援顯式新增。
+
 ### ResourceTemplate
-資源模板 - 代表某雲商的某種雲資源的配置模板。
+資源模板 - 代表某雲商的某種雲資源的配置模板。同 product family 下不同 provider 各有一行。
 
 ```java
 @Entity

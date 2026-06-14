@@ -107,11 +107,19 @@ gantt
   - [ ] 後端：生成 API 接口定義
   - [ ] 後端：生成同步配置
   - [ ] 前端：生成結果展示 + 下載
+- [ ] **P2.6** Cross-Provider 產品族（規劃中）
+  - [ ] `ResourceTemplate.familyKey` + `familyDisplayName`（不引新表的最小化方案）
+  - [ ] TemplatesListPage 按 familyKey 聚合，卡片內顯示 ALIYUN / AWS 變體 chip
+  - [ ] DesignerPage 加 provider toggle，切換時載入對應 template 的欄位配置
+  - [ ] User Form 預覽預設只顯示 USER_FORM target 欄位；OPs Form 預覽顯示 USER_FORM ∪ OPS_FORM
+  - [ ] 「Unmapped Configs」section 升格為「Custom Fields」並提供顯式新增
+  - [ ] 設計：跨 provider 共用欄位語義的標記方式（先用 `groupKey` 約定，再考慮 SharedFieldDefinition 表）
 
 ### 交付物
 - 完整的 WYSIWYG 設計器
 - 可以配置欄位並即時預覽
 - 可以生成 Form Config JSON
+- 同產品族跨 provider 切換配置
 
 ---
 

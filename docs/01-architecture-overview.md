@@ -112,7 +112,21 @@ stateDiagram-v2
     Failed --> PendingOpsAction: 重試
 ```
 
-### 5. Config Generation（設計器的輸出）
+### 5. Cross-Provider 資源產品族（Product Family）
+
+端用戶看到的入口是 **資源類型（RDS / Elasticsearch / ...）** 而非「ALIYUN-RDS」+「AWS-RDS」兩條獨立路徑。同一 `ResourceType` 下，不同 `CloudProvider` 是一個 product family 的多個變體：
+
+- **入口**：用戶選「RDS」，頁面提供 ALIYUN / AWS 切換 → 根據選中的 provider 載入對應的 Form Config。
+- **共用 vs 特有欄位**：同 family 內每個 provider 的 TF Schema 是欄位**全集**；不同 provider 之間會有一批**語義共用欄位**（engine、storage_size 等）以及**provider 特有欄位**（AWS `multi_az`、Aliyun `pg_hba_conf`）。設計器要能標記共用語義，避免 OPs 在兩邊重複定義同一個業務欄位。
+- **User Form vs OPs Form**：
+  - User Form 偏「規格 / 用量」（engine、version、instance_class、storage）— 業務使用者關心的東西。
+  - OPs Form **包含 User Form 全部欄位** + ops-only 欄位（cloud_account、region、VPC、vSwitch、zone、charge_type）。OPs 在審批時看到使用者提交的內容加上自己要補充的雲帳號 / 網路設定。
+  - 提交流是：用戶填 User Form → 工單進入 PendingOpsAction → OPs 認領後填 OPs Form（已 prefill 用戶值）→ 提交審批 → 後端合併 User + OPs + Fixed 值 → 生成 TF。
+- **自定義欄位（Custom Fields）**：除了 TF Schema 對應欄位外，可追加 `tfPath=null` 的自定義欄位 — 這些不會直接寫進 TF 主資源，而是傳給**下游 Terraform Orchestrator 服務**，用於配套基礎設施配置（VPC / Subnet 創建或選擇、安全組規則、初始化參數等）。Designer 中目前用「Unmapped Configs」section 暫表示，後續會升級為「Custom Fields」首類概念並提供顯式新增 UX。
+
+> 為什麼這樣：使用者不該被「雲商」這個概念綁架 — 他要的是「一個 RDS」，OPs 才需要關心「在哪個雲、用什麼帳號」。同時 TF Schema 本身不包含管理 VPC / subnet / 初始化等附加流程的欄位，所以需要 custom-field 通道與 TF orchestrator 對接。
+
+### 6. Config Generation（設計器的輸出）
 
 設計器配置完成後，生成以下產物：
 

@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
@@ -39,11 +39,15 @@ import {
   type FieldConfigFormValues,
 } from './fieldConfigSchema';
 import type { FieldConfigResponse, TfFieldNode } from '@/types/api';
+import { DataSourceEditor } from './jsonEditors/DataSourceEditor';
+import { ValidationEditor } from './jsonEditors/ValidationEditor';
+import { DependsOnEditor } from './jsonEditors/DependsOnEditor';
 
 type Props = {
   templateId: string;
   selectedNode: TfFieldNode | null;
   selectedConfig: FieldConfigResponse | null;
+  otherFieldKeys: string[];
 };
 
 function configToFormValues(c: FieldConfigResponse): FieldConfigFormValues {
@@ -67,24 +71,12 @@ function configToFormValues(c: FieldConfigResponse): FieldConfigFormValues {
   };
 }
 
-export function FieldConfigPanel({ templateId, selectedNode, selectedConfig }: Props) {
-  const upsert = useUpsertFieldConfig(templateId);
-
+export function FieldConfigPanel({ templateId, selectedNode, selectedConfig, otherFieldKeys }: Props) {
   const defaults = useMemo<FieldConfigFormValues | null>(() => {
     if (selectedConfig) return configToFormValues(selectedConfig);
     if (selectedNode) return defaultDraftForTfField(selectedNode);
     return null;
   }, [selectedConfig, selectedNode]);
-
-  const form = useForm<FieldConfigFormValues>({
-    resolver: zodResolver(fieldConfigUpdateSchema) as never,
-    defaultValues: defaults ?? undefined,
-  });
-
-  useEffect(() => {
-    if (defaults) form.reset(defaults);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedConfig?.id, selectedNode?.tfPath]);
 
   if (!defaults) {
     return (
@@ -93,6 +85,30 @@ export function FieldConfigPanel({ templateId, selectedNode, selectedConfig }: P
       </section>
     );
   }
+
+  const formKey = selectedConfig?.id ?? `draft:${selectedNode?.tfPath ?? defaults.fieldKey}`;
+  return (
+    <FieldConfigForm
+      key={formKey}
+      templateId={templateId}
+      defaults={defaults}
+      otherFieldKeys={otherFieldKeys}
+    />
+  );
+}
+
+type FormProps = {
+  templateId: string;
+  defaults: FieldConfigFormValues;
+  otherFieldKeys: string[];
+};
+
+function FieldConfigForm({ templateId, defaults, otherFieldKeys }: FormProps) {
+  const upsert = useUpsertFieldConfig(templateId);
+  const form = useForm<FieldConfigFormValues>({
+    resolver: zodResolver(fieldConfigUpdateSchema) as never,
+    defaultValues: defaults,
+  });
 
   const watchedTarget = form.watch('formTarget');
   const watchedSource = form.watch('valueSource');
@@ -313,15 +329,7 @@ export function FieldConfigPanel({ templateId, selectedNode, selectedConfig }: P
               </TabsContent>
 
               <TabsContent value="values" className="space-y-3">
-                {(
-                  [
-                    'fixedValueJson',
-                    'defaultValueJson',
-                    'dataSourceJson',
-                    'validationJson',
-                    'dependsOnJson',
-                  ] as const
-                ).map((name) => (
+                {(['fixedValueJson', 'defaultValueJson'] as const).map((name) => (
                   <FormField
                     key={name}
                     control={form.control}
@@ -343,6 +351,32 @@ export function FieldConfigPanel({ templateId, selectedNode, selectedConfig }: P
                     )}
                   />
                 ))}
+
+                <FormField
+                  control={form.control}
+                  name="dataSourceJson"
+                  render={({ field }) => (
+                    <DataSourceEditor value={field.value ?? null} onChange={field.onChange} />
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="validationJson"
+                  render={({ field }) => (
+                    <ValidationEditor value={field.value ?? null} onChange={field.onChange} />
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="dependsOnJson"
+                  render={({ field }) => (
+                    <DependsOnEditor
+                      value={field.value ?? null}
+                      onChange={field.onChange}
+                      otherFieldKeys={otherFieldKeys}
+                    />
+                  )}
+                />
               </TabsContent>
             </div>
           </Tabs>

@@ -121,9 +121,11 @@ const ALLOWED: Record<FormTarget, ValueSource[]> = {
 };
 
 export function warnMappingMismatch(
-  formTarget: FormTarget,
-  valueSource: ValueSource,
+  formTarget: FormTarget | undefined,
+  valueSource: ValueSource | undefined,
 ): string | null {
-  if (ALLOWED[formTarget].includes(valueSource)) return null;
-  return `${formTarget} 通常搭配 ${ALLOWED[formTarget].join(' / ')}，目前是 ${valueSource}`;
+  if (!formTarget || !valueSource) return null;
+  const allowed = ALLOWED[formTarget];
+  if (!allowed || allowed.includes(valueSource)) return null;
+  return `${formTarget} 通常搭配 ${allowed.join(' / ')}，目前是 ${valueSource}`;
 }

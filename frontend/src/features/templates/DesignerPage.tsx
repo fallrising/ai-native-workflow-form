@@ -84,6 +84,12 @@ export function DesignerPage() {
     return selection.node ?? leafIndex.get(selection.tfPath) ?? null;
   }, [selection, leafIndex]);
 
+  const currentFieldKey = selectedConfig?.fieldKey ?? null;
+  const otherFieldKeys = useMemo(
+    () => fields.map((f) => f.fieldKey).filter((k) => k !== currentFieldKey),
+    [fields, currentFieldKey],
+  );
+
   if (templateQ.isLoading) {
     return <DesignerStatus message="載入模板中…" />;
   }
@@ -117,6 +123,7 @@ export function DesignerPage() {
           templateId={id!}
           selectedNode={selectedNode}
           selectedConfig={selectedConfig}
+          otherFieldKeys={otherFieldKeys}
         />
 
         <Card className="flex h-full items-center justify-center p-4 text-center text-sm text-muted-foreground">

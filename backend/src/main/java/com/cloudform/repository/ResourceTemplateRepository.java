@@ -31,7 +31,7 @@ public interface ResourceTemplateRepository extends JpaRepository<ResourceTempla
            "(:provider IS NULL OR t.cloudProvider = :provider) AND " +
            "(:status IS NULL OR t.status = :status) AND " +
            "(:resourceType IS NULL OR t.resourceType = :resourceType) AND " +
-           "(:search IS NULL OR LOWER(t.displayName) LIKE LOWER(CONCAT('%', :search, '%')))")
+           "(:search = '' OR LOWER(t.displayName) LIKE LOWER(CONCAT('%', :search, '%')))")
     Page<ResourceTemplate> findWithFilters(
             @Param("provider") CloudProvider provider,
             @Param("status") TemplateStatus status,

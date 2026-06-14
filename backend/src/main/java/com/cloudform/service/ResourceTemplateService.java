@@ -29,7 +29,7 @@ public class ResourceTemplateService {
     @Transactional(readOnly = true)
     public Page<ResourceTemplate> findAll(CloudProvider provider, TemplateStatus status,
                                           ResourceType resourceType, String search, Pageable pageable) {
-        return repository.findWithFilters(provider, status, resourceType, search, pageable);
+        return repository.findWithFilters(provider, status, resourceType, search == null ? "" : search, pageable);
     }
 
     @Transactional(readOnly = true)

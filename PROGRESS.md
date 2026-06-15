@@ -87,12 +87,28 @@
 - [x] FieldConfigPanel：Tabs（Basic/Mapping/Component/Values）、JSON textarea、軟提示 mapping mismatch、Submit/Discard
 - [x] DesignerPage：三欄佈局，seed 模板無 `tf_provider_version` 時 fallback 到 schemas list
 
-### Milestone 2（下一步）
-1. **P2.2 進階**：搜索/過濾、@dnd-kit 拖拽分桶 + 排序
-2. **P2.3 進階**：dataSource/validation/dependsOn 的結構化編輯器（discriminated union zod）
-3. **P2.4 Preview Panel**：即時渲染 User/OPs Form
-4. **P2.5 Config Generation**：Form Config JSON + TF Template + API Spec
-5. 嵌套 block 子欄位配置（nestingMode=LIST/SET/MAP）
+### Milestone 2 ✅
+- [x] 結構化 JSON editors（DataSource STATIC|API / Validation / DependsOn，含 Raw 切換）
+- [x] Tree 搜索 + filter chips（Configured / Required / Hide computed）+ 計數
+- [x] @dnd-kit 拖拽分桶 + 排序 + 插入位置指示線
+- [x] jsonb 綁定修正（`@JdbcTypeCode(SqlTypes.JSON)`）
+
+### Milestone 3 ✅
+- [x] Backend `com.cloudform.generation` package
+  - FormConfigGenerator（sections by groupKey、巢狀 JSON object 輸出）
+  - TfTemplateGenerator（HCL resource block + FIXED 字面量；tfPath 去重；嵌套 block 暫跳過）
+  - RequiredApisExtractor（dataSource type=API endpoints 去重 + 參數合併）
+  - GenerationService（持久化 formConfigJson + tfTemplate）
+  - `POST /api/v1/templates/{id}/generate`
+- [x] Frontend GenerateDialog（3 個 tab：Form Config / TF Template / Required APIs，含 Copy）
+- [x] Designer header「Generate」按鈕
+
+### 後續（M4+ / Phase 3+）
+1. **P2.4 Preview Panel** — 用 Form Config JSON 即時渲染 User/OPs Form 預覽
+2. **P2.6 Cross-Provider 產品族** — TemplatesListPage 按 resourceType 聚合 + Designer provider toggle + Custom Fields 升格
+3. 嵌套 block 子欄位配置（nestingMode=LIST/SET/MAP）+ TF template 巢狀支援
+4. **Phase 3 DynamicForm** — runtime 把 Form Config JSON 渲染成可用表單
+5. **Phase 4 TF Orchestrator 整合** — TF Template 提交 + 雲商整合 + sync config
 
 ---
 

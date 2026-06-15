@@ -101,12 +101,12 @@ gantt
   - [ ] Tab 切換（User Form / OPs Form / Result）
   - [ ] 即時渲染表單預覽
   - [ ] 響應式預覽
-- [ ] **P2.5** Config Generation
-  - [ ] 後端：根據 FieldConfig 生成 Form Config JSON
-  - [ ] 後端：生成 TF 模板
-  - [ ] 後端：生成 API 接口定義
-  - [ ] 後端：生成同步配置
-  - [ ] 前端：生成結果展示 + 下載
+- [x] **P2.5** Config Generation
+  - [x] 後端：根據 FieldConfig 生成 Form Config JSON
+  - [x] 後端：生成 TF 模板（HCL，FIXED 字面量 + var.X，嵌套 block 暫跳過）
+  - [x] 後端：生成 API 接口定義（Required APIs，去重 + 參數合併）
+  - [ ] 後端：生成同步配置（Phase 4 雲商整合時做）
+  - [x] 前端：生成結果展示（Dialog 3 tabs，含 Copy）；下載延後
 - [ ] **P2.6** Cross-Provider 產品族（規劃中）
   - [ ] `ResourceTemplate.familyKey` + `familyDisplayName`（不引新表的最小化方案）
   - [ ] TemplatesListPage 按 familyKey 聚合，卡片內顯示 ALIYUN / AWS 變體 chip

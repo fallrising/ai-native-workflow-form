@@ -5,6 +5,7 @@ import { queryKeys } from '@/lib/queryKeys';
 import type {
   FieldConfigResponse,
   FieldConfigUpdateRequest,
+  GenerationResponse,
   SchemaTreeResponse,
   TemplateDetail,
 } from '@/types/api';
@@ -77,6 +78,20 @@ export function useBatchUpsertFieldConfig(templateId: string | undefined) {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.templates.fields(templateId ?? '') });
+    },
+  });
+}
+
+export function useGenerate(templateId: string | undefined) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      const { data } = await api.post<GenerationResponse>(`/templates/${templateId}/generate`);
+      return data;
+    },
+    onSuccess: () => {
+      toast.success('已生成 Form Config');
+      qc.invalidateQueries({ queryKey: queryKeys.templates.detail(templateId ?? '') });
     },
   });
 }

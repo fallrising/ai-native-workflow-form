@@ -129,6 +129,20 @@ export type FieldConfigResponse = {
   tfDefault: string | null;
 };
 
+export type RequiredApi = {
+  path: string;
+  method: string;
+  params: string[];
+  description: string | null;
+  source: string;
+};
+
+export type GenerationResponse = {
+  formConfig: unknown;
+  terraformTemplate: string;
+  requiredApis: RequiredApi[];
+};
+
 export type FieldConfigUpdateRequest = {
   fieldKey: string;
   tfPath: string | null;

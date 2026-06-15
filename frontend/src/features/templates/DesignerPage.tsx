@@ -11,8 +11,10 @@ import {
   type DragStartEvent,
 } from '@dnd-kit/core';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Header } from '@/components/layout/Header';
+import { GenerateDialog } from './designer/GenerateDialog';
 import { api } from '@/lib/api';
 import { queryKeys } from '@/lib/queryKeys';
 import {
@@ -29,6 +31,7 @@ import {
 import {
   useBatchUpsertFieldConfig,
   useFieldConfigs,
+  useGenerate,
   useSchemaTree,
   useTemplate,
 } from './designer/hooks';
@@ -38,6 +41,7 @@ import type {
   FieldConfigResponse,
   FieldConfigUpdateRequest,
   FormTarget,
+  GenerationResponse,
   SchemaSourceItem,
   TfFieldNode,
 } from '@/types/api';
@@ -104,6 +108,8 @@ export function DesignerPage() {
   const { id } = useParams<{ id: string }>();
   const [selection, setSelection] = useState<Selection | null>(null);
   const [dragLabel, setDragLabel] = useState<string | null>(null);
+  const [generationResult, setGenerationResult] = useState<GenerationResponse | null>(null);
+  const [generateDialogOpen, setGenerateDialogOpen] = useState(false);
 
   const templateQ = useTemplate(id);
   const template = templateQ.data;
@@ -162,6 +168,16 @@ export function DesignerPage() {
   );
 
   const batchUpsert = useBatchUpsertFieldConfig(id);
+  const generate = useGenerate(id);
+
+  function handleGenerate() {
+    generate.mutate(undefined, {
+      onSuccess: (data) => {
+        setGenerationResult(data);
+        setGenerateDialogOpen(true);
+      },
+    });
+  }
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
@@ -279,7 +295,19 @@ export function DesignerPage() {
       <Header
         title={template.displayName}
         description={`${template.cloudProvider} · ${template.tfResourceName}`}
-        actions={<Badge variant="outline">{template.status}</Badge>}
+        actions={
+          <>
+            <Badge variant="outline">{template.status}</Badge>
+            <Button
+              type="button"
+              size="sm"
+              onClick={handleGenerate}
+              disabled={generate.isPending}
+            >
+              {generate.isPending ? 'Generating…' : 'Generate'}
+            </Button>
+          </>
+        }
       />
       <div className="grid min-h-0 flex-1 grid-cols-[300px_minmax(0,1fr)_320px] gap-4 overflow-hidden p-4">
         {treeQ.isLoading || fieldsQ.isLoading ? (
@@ -316,6 +344,11 @@ export function DesignerPage() {
           </div>
         )}
       </DragOverlay>
+      <GenerateDialog
+        open={generateDialogOpen}
+        onOpenChange={setGenerateDialogOpen}
+        result={generationResult}
+      />
     </DndContext>
   );
 }

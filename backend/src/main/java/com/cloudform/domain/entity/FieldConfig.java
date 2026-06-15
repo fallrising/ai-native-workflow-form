@@ -4,6 +4,8 @@ import com.cloudform.domain.enums.ComponentType;
 import com.cloudform.domain.enums.FormTarget;
 import com.cloudform.domain.enums.ValueSource;
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.util.UUID;
 
@@ -57,18 +59,23 @@ public class FieldConfig {
     @Column(name = "display_order", nullable = false)
     private int displayOrder;
 
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "fixed_value_json", columnDefinition = "jsonb")
     private String fixedValueJson;
 
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "default_value_json", columnDefinition = "jsonb")
     private String defaultValueJson;
 
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "data_source_json", columnDefinition = "jsonb")
     private String dataSourceJson;
 
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "validation_json", columnDefinition = "jsonb")
     private String validationJson;
 
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "depends_on_json", columnDefinition = "jsonb")
     private String dependsOnJson;
 

@@ -4,6 +4,8 @@ import com.cloudform.domain.enums.CloudProvider;
 import com.cloudform.domain.enums.ResourceType;
 import com.cloudform.domain.enums.TemplateStatus;
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -45,15 +47,18 @@ public class ResourceTemplate {
     @Column(length = 50)
     private String icon;
 
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "tf_schema_json", columnDefinition = "jsonb")
     private String tfSchemaJson;
 
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "form_config_json", columnDefinition = "jsonb")
     private String formConfigJson;
 
     @Column(name = "tf_template", columnDefinition = "TEXT")
     private String tfTemplate;
 
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "sync_config_json", columnDefinition = "jsonb")
     private String syncConfigJson;
 

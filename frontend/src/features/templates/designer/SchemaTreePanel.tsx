@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
-import { ChevronRight, Lock, CircleDot, Layers, Search, X } from 'lucide-react';
+import { useDraggable } from '@dnd-kit/core';
+import { ChevronRight, Lock, CircleDot, Layers, Search, X, GripVertical } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,6 +10,11 @@ import type { FieldConfigResponse, TfFieldNode } from '@/types/api';
 export type Selection =
   | { kind: 'tree'; tfPath: string; node: TfFieldNode }
   | { kind: 'unmapped'; fieldKey: string };
+
+export const TREE_DRAGGABLE_PREFIX = 'tree:';
+export function treeDraggableId(tfPath: string): string {
+  return `${TREE_DRAGGABLE_PREFIX}${tfPath}`;
+}
 
 type Filters = {
   query: string;
@@ -174,7 +180,7 @@ export function SchemaTreePanel({
         </div>
       </div>
 
-      <div className="min-h-0 flex-1 space-y-3 overflow-y-auto pr-1">
+      <div className="min-h-0 flex-1 space-y-3 overflow-x-hidden overflow-y-auto pr-1">
         <div className="space-y-1">
           <div className="flex items-baseline justify-between">
             <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
@@ -251,6 +257,27 @@ export function SchemaTreePanel({
   );
 }
 
+function DragHandle({ tfPath }: { tfPath: string }) {
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+    id: treeDraggableId(tfPath),
+  });
+  return (
+    <button
+      ref={setNodeRef}
+      type="button"
+      className={cn(
+        'flex h-5 w-5 shrink-0 cursor-grab items-center justify-center rounded text-muted-foreground touch-none hover:bg-accent hover:text-foreground',
+        isDragging && 'cursor-grabbing',
+      )}
+      aria-label={`drag ${tfPath}`}
+      {...attributes}
+      {...listeners}
+    >
+      <GripVertical className="h-3.5 w-3.5" />
+    </button>
+  );
+}
+
 function FilterChip({
   label,
   on,
@@ -308,34 +335,35 @@ function TreeNode({
 
   return (
     <li>
-      <button
-        type="button"
-        onClick={handleClick}
+      <div
         className={cn(
-          'flex w-full items-center gap-1.5 rounded px-2 py-1 text-left text-sm hover:bg-accent',
+          'flex w-full min-w-0 items-center gap-1.5 rounded px-2 py-1 text-left text-sm hover:bg-accent',
           active && 'bg-accent text-accent-foreground',
           filterActive && !directMatch && !isNested && 'opacity-60',
         )}
         style={{ paddingLeft: `${depth * 12 + 8}px` }}
       >
-        {hasChildren ? (
-          <ChevronRight
-            className={cn('h-3 w-3 shrink-0 transition-transform', open && 'rotate-90')}
-          />
-        ) : (
-          <span className="inline-block w-3" />
-        )}
-        {configured && !isNested && <CircleDot className="h-3 w-3 shrink-0 text-emerald-500" />}
-        {isNested && <Layers className="h-3 w-3 shrink-0 text-amber-500" />}
-        <span className="truncate font-mono text-[13px]">{leafLabel}</span>
-        {node.required && (
-          <span className="ml-1 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-red-500" />
-        )}
-        {node.computed && <Lock className="ml-1 h-3 w-3 shrink-0 text-muted-foreground" />}
-        <Badge variant="outline" className="ml-auto shrink-0 text-[10px]">
-          {isNested ? node.nestingMode ?? 'block' : node.tfType}
-        </Badge>
-      </button>
+        {!isNested && <DragHandle tfPath={node.tfPath} />}
+        <button type="button" onClick={handleClick} className="flex min-w-0 flex-1 items-center gap-1.5 text-left">
+          {hasChildren ? (
+            <ChevronRight
+              className={cn('h-3 w-3 shrink-0 transition-transform', open && 'rotate-90')}
+            />
+          ) : (
+            <span className="inline-block w-3" />
+          )}
+          {configured && !isNested && <CircleDot className="h-3 w-3 shrink-0 text-emerald-500" />}
+          {isNested && <Layers className="h-3 w-3 shrink-0 text-amber-500" />}
+          <span className="truncate font-mono text-[13px]">{leafLabel}</span>
+          {node.required && (
+            <span className="ml-1 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-red-500" />
+          )}
+          {node.computed && <Lock className="ml-1 h-3 w-3 shrink-0 text-muted-foreground" />}
+          <Badge variant="outline" className="ml-auto shrink-0 text-[10px]">
+            {isNested ? node.nestingMode ?? 'block' : node.tfType}
+          </Badge>
+        </button>
+      </div>
       {hasChildren && open && (
         <ul className="space-y-0.5">
           {node.children

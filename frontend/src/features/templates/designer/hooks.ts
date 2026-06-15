@@ -65,6 +65,22 @@ export function useUpsertFieldConfig(templateId: string | undefined) {
   });
 }
 
+export function useBatchUpsertFieldConfig(templateId: string | undefined) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (fields: FieldConfigUpdateRequest[]) => {
+      const { data } = await api.put<FieldConfigResponse[]>(
+        `/templates/${templateId}/fields/batch`,
+        { fields },
+      );
+      return data;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.templates.fields(templateId ?? '') });
+    },
+  });
+}
+
 export function useResetFieldConfigs(templateId: string | undefined) {
   const qc = useQueryClient();
   return useMutation({
